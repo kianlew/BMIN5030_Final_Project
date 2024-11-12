@@ -1,5 +1,5 @@
 ---
-title: "Your Title"
+title: "mENTAL EHALTH"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Kian Lew"
 format: html
