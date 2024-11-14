@@ -1,5 +1,5 @@
 ---
-title: "Mental Health Utilization"
+title: "National Trend in the Mental Health Services Utilization among U.S. adults with suicidal ideation and Violent Behaviours"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Kian Lew"
 format: html
@@ -16,11 +16,21 @@ Use this template to complete your project throughout the course. Your Final Pro
 
 Give a brief a description of your project and its goal(s), what data you are using to complete it, and what two faculty/staff in different fields you have spoken to about your project with a brief summary of what you learned from each person. Include a link to your final project GitHub repository.
 
+Data from the National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors, including suicide, homicide, and firearm-related incidents. The objectives of this study are: i) to describe the prevalence of past-year history of suicidal ideation (SI) or violent behaviors (VB) among U.S. adults; ii) to identify factors (e.g., demographic factors, mental health disorders, substance abuse, etc) associated with SI and/or VB; and iii) to investigate trends in the utilization of mental health services among U.S. adults with SI or VB. The dataset that will be used is the National Survey on Drug Use and Health (NSDUH) from 2015 to 2022. The target population is U.S. adults aged 18–64 with past-year history of suicidal ideation or violent behaviors. 
+
 ## Introduction {#sec-introduction}
 
 Describe the problem addressed, its significance, and some background to motivate the problem. This should extend what is in the @sec-overview.
 
+According to the World Health Organization (WHO) and the Centers for Disease Control and Prevention (CDC), violence is defined as the intentional use of physical force or power, threatened or actual, against oneself, another person, or a group or community, that either results in or has a high likelihood of resulting in injury, death, psychological harm, maldevelopment, or deprivation. Statistics from the CDC's National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors including suicide, homicide, firearm-related incidents, and other forms of violence. This is an important public health issue because violent behavior not only causes harm to oneself but also disrupts the lives of others at a societal level. 
+
+There is a potentially strong link between these violent behaviors and mental illness, which warrants extensive research in this area. While there have been a few studies on mental health services utilization patterns among U.S. adults with suicidal ideation, little is known about the mental health utilization patterns among U.S. adults with violent behaviors. In this regard, this study aims to better understand mental health service utilization among this vulnerable group, which could provide insights into the prevention of violence-related injuries and deaths. 
+
 Explain why your problem is interdisciplinary, what fields can contribute to its understanding, and incorporate background related to what you learned from meeting with faculty/staff.
+
+This problem is interdisciplinary because it draws upon multiple fields to improve its understanding. Psychiatry contributes domain knowledge about mental illness and mental health services. Epidemiology provides methodologies to measure the prevalence of suicidal ideation, violent behaviors and utilization of mental health services. 
+
+I had a fruitful discussion with Dr. Xie, as I learned some new concepts in statistical analysis. These include transforming dummy variables into a single categorical variable, setting the reference using the relevel function, and measuring collinearity using the Variance Inflation Factor (VIF).
 
 ## Methods {#sec-methods}
 
