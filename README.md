@@ -9,8 +9,8 @@ Data from the National Violent Death Reporting System (NVDRS) show an increasing
 
 **Files:** <br>
 'README.md' is the current file which contains an overview of the project.<br>
-'final_project_template.qmd' contains the current version of the project as .rmd.<br>
-'BMIN5030_final_project_Lew.html' contains the HTML output from the main .rmd file.<br>
+'final_project_template.qmd' contains the current version of the project as .qmd.<br>
+'BMIN5030_final_project_Lew.html' contains the HTML output from the main .html file.<br>
 'data_dictionary.csv' contains the descriptions of variables with their corresponding options.<br>
 
 
