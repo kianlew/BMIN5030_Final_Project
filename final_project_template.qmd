@@ -16,13 +16,13 @@ Use this template to complete your project throughout the course. Your Final Pro
 
 Give a brief a description of your project and its goal(s), what data you are using to complete it, and what two faculty/staff in different fields you have spoken to about your project with a brief summary of what you learned from each person. Include a link to your final project GitHub repository.
 
-Data from the National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors, including suicide, homicide, and firearm-related incidents. The objectives of this study are: i) to describe the prevalence of past-year history of suicidal ideation (SI) or violent behaviors (VB) among U.S. adults; ii) to identify factors (e.g., demographic factors, mental health disorders, substance abuse, etc) associated with SI and/or VB; and iii) to investigate trends in the utilization of mental health services among U.S. adults with SI or VB. The dataset that will be used is the National Survey on Drug Use and Health (NSDUH) from 2015 to 2022. The target population is U.S. adults aged 18–64 with past-year history of suicidal ideation or violent behaviors. 
+Data from the National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors, including suicide, homicide, and firearm-related incidents. The objectives of this study are: i) to describe the prevalence of past-year history of suicidal ideation (SI) or violent behaviors (VB) among U.S. adults; ii) to identify factors (e.g., demographic factors, mental health disorders, substance abuse, etc) associated with SI and/or VB; and iii) to investigate trends in the utilization of mental health services among U.S. adults with SI and/or VB. iv) to investigate trends of the unmet need for mental health services among U.S. adults with SI and/or VB. v) to describe the reasons behind the unmet need for mental health services among U.S. adults with SI and/or VB. The dataset that will be used is the National Survey on Drug Use and Health (NSDUH) from 2015 to 2021. The target population is U.S. adults aged 18–64 with past-year history of suicidal ideation or violent behaviors.
 
 ## Introduction {#sec-introduction}
 
 Describe the problem addressed, its significance, and some background to motivate the problem. This should extend what is in the @sec-overview.
 
-According to the World Health Organization (WHO) and the Centers for Disease Control and Prevention (CDC), violence is defined as the intentional use of physical force or power, threatened or actual, against oneself, another person, or a group or community, that either results in or has a high likelihood of resulting in injury, death, psychological harm, maldevelopment, or deprivation. Statistics from the CDC's National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors including suicide, homicide, firearm-related incidents, and other forms of violence. This is an important public health issue because violent behavior not only causes harm to oneself but also disrupts the lives of others at a societal level. 
+According to the World Health Organization (WHO) and the Centers for Disease Control and Prevention (CDC), violence is defined as the intentional use of physical force or power, threatened or actual, against oneself, another person, or a group or community, that either results in or has a high likelihood of resulting in injury, death, psychological harm, maldevelopment, or deprivation. Statistics from the National Violent Death Reporting System (NVDRS) show an increasing prevalence of fatal injuries and deaths due to violent behaviors including suicide, homicide, firearm-related incidents, and other forms of violence. This is an important public health issue because violent behavior not only causes harm to oneself but also disrupts the lives of others at a societal level. 
 
 There is a potentially strong link between these violent behaviors and mental illness, which warrants extensive research in this area. While there have been a few studies on mental health services utilization patterns among U.S. adults with suicidal ideation, little is known about the mental health utilization patterns among U.S. adults with violent behaviors. In this regard, this study aims to better understand mental health service utilization among this vulnerable group, which could provide insights into the prevention of violence-related injuries and deaths. 
 
@@ -30,16 +30,1328 @@ Explain why your problem is interdisciplinary, what fields can contribute to its
 
 This problem is interdisciplinary because it draws upon multiple fields to improve its understanding. Psychiatry contributes domain knowledge about mental illness and mental health services. Epidemiology provides methodologies to measure the prevalence of suicidal ideation, violent behaviors and utilization of mental health services. 
 
-I had a fruitful discussion with Dr. Xie, as I learned some new concepts in statistical analysis. These include transforming dummy variables into a single categorical variable, setting the reference using the relevel function, and measuring collinearity using the Variance Inflation Factor (VIF).
+I had a fruitful discussion with Dr. Xie who is an epidemiologist. I learned some new concepts in statistical analysis. These include transforming dummy variables into a single categorical variable, setting the reference using the relevel function, and measuring collinearity using the Variance Inflation Factor (VIF). Whereas with Professor Oslin who is a professor of psychiatrist, he provided clinical insights that although the Affordable Care Act has increased access to mental health services, it often does not cover highly specialized treatments targeted at patients with suicidal ideation. As a result, patients must pay out-of-pocket to access these specialized services. That explains why the prevalence of suicidal ideation is increasing despite a rise in the utilization of mental health services. This is reflected in my findings that the most common reason for not seeking treatment was cost barrier.
 
 ## Methods {#sec-methods}
 
 Describe the data used and general methodological approach used to address the problem described in the @sec-introduction. Subsequently, incorporate full R code necessary to retrieve and clean data, and perform analysis. Be sure to include a description of code so that others (including your future self) can understand what you are doing and why.
 
+This is a retrospective cohort study based on the publicly available National Survey on Drug Use and Health (NSDUH) dataset from 2015 to 2021. The sample consists of adults (aged 18–64) residing in the United States. NSDUH provides nationally representative information through a stratified random sampling method based on sociodemographic and clinical characteristics (alcohol, tobacco, and drug use, mental health,and health-related issues) and includes questions based on the Diagnostic and Statistical Manual of Mental Disorders (DSM) (different versions depending on the survey years; e.g., DSM-5 since 2020) of people aged 18 years or older. Details of the survey, including questionnaires, methodology, and a description of the dataset, are available on the NSDUH website. 
+
+**Inclusion Criteria:** US adult aged between 18-64 years old with sucidal ideation(suicide thought, suicide plan, suicide attempt in the past 12 months ) or violent behaviors (attacked someone with the intention to seriously hurt them, arrest or booking history of arson, sex offense, assault, violent offense, robbery). 
+
+**Sociodemographic factors of interest:** Age, Sex, Race/Hispanicity, Educational Attainment, Employment Status, Rurality, Health Insurance, Family Income, Personal Income, Marital Status, Heavy/Binge Drinking Habit, Illicit Drug Use, Alcohol Use Disorder, Drug Use Disorder, Major Depressive Episode, and Presence/Severity of Mental Illness
+
+```{r}
+
+
+# Load necessary libraries
+library(readr)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+
+# Load the dataset using read_delim and assign it to nsduh_2021
+nsduh_2021 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2021-DS0001-bndl-data-tsv_v4/NSDUH_2021_Tab.txt")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2021_s <- nsduh_2021 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, IRPYUD5ALC, UD5ILLANY, IRAMDEYR,     MICATPY, IRSUICTHNK, IRSUITRYYR, IRSUIPLANYR, RSKYFQDGR, SNYATTAK, RSKYFQTES, 
+    BKSEXNR, BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND4, AMHTXYR4, AMHINP2, 
+    AMHOUTP4, MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, 
+    MHRNOHP2, AUUNCOST, MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2021_ss <- nsduh_2021_s |> 
+  filter(
+    (BKARSON == 1 | BKROB == 1 | BKSEXNR == 1 | BKSMASLT == 1 | BKSRVIOL == 1 |    
+      IRSUICTHNK == 1 | IRSUIPLANYR == 1 | IRSUITRYYR == 1) |
+    (SNYATTAK %in% c(2, 3, 4, 5))
+  )
+
+
+#----------------------------------------------------------------------------
+
+# Load the dataset using read_delim and assign it to nsduh_2020
+nsduh_2020 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2020-DS0001-bndl-data-tsv_v1/NSDUH_2020_Tab.txt")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2020_s <- nsduh_2020 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U,    
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, BKSEXNR     , BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, AMHOUTP3,   
+    MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, MHRNOHP2, AUUNCOST,     MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2020_ss <- nsduh_2020_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+
+
+#----------------------------------------------------------------------------
+
+
+# Load the dataset using read_delim and assign it to nsduh_2019
+nsduh_2019 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2019-DS0001-bndl-data-tsv/NSDUH_2019_Tab.txt")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2019_s <- nsduh_2019 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U, 
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, 
+    BKSEXNR, BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, 
+    AMHOUTP3, MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, 
+    MHRNOHP2, AUUNCOST, MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2019_ss <- nsduh_2019_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+
+
+#-----------------------------------------------------------------------------
+
+# Load the dataset using read_delim and assign it to nsduh_2018
+nsduh_2018 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2018-DS0001-bndl-data-tsv/NSDUH_2018_Tab.tsv")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2018_s <- nsduh_2018 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U,   
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, BKSEXNR
+    , BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, AMHOUTP3,  
+    MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, MHRNOHP2, AUUNCOST,     MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2018_ss <- nsduh_2018_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+
+
+#-----------------------------------------------------------------------------
+
+
+# Load the dataset using read_delim and assign it to nsduh_2017
+nsduh_2017 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2017-DS0001-bndl-data-tsv/NSDUH_2017_Tab.tsv")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2017_s <- nsduh_2017 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U, 
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, 
+    BKSEXNR, BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, 
+    AMHOUTP3, MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, 
+    MHRNOHP2, AUUNCOST, MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2017_ss <- nsduh_2017_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+
+#----------------------------------------------------------------------------
+
+# Load the dataset using read_delim and assign it to nsduh_2016
+nsduh_2016 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2016-DS0001-bndl-data-tsv/NSDUH_2016_Tab.tsv")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2016_s <- nsduh_2016 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARIT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U, 
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, 
+    BKSEXNR, BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, 
+    AMHOUTP3, MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, 
+    MHRNOHP2, AUUNCOST, MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2016_ss <- nsduh_2016_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+
+
+#------------------------------------------------------------------------------
+
+# Load the dataset using read_delim and assign it to nsduh_2015
+nsduh_2015 <- read_delim("C:/Users/kianl/OneDrive/Documents/Raw Data/NSDUH-2015-DS0001-bndl-data-tsv/NSDUH_2015_Tab.tsv")
+
+# Filter rows where the age group is 18-64 and variables of interest
+nsduh_2015_s <- nsduh_2015 |> 
+  filter(CATAG6 %in% c(2, 3, 4, 5)) |> 
+  select(
+    CATAG6, IRSEX, NEWRACE2, EDUHIGHCAT, IRWRKSTAT18, COUTYP4, IRINSUR4, IRFAMIN3, 
+    IRPINC3, IRMARITSTAT, BNGDRKMON, HVYDRKMON, ILLYR, ABODALC, UDPYILL, AMDEY2_U, 
+    MI_CAT_U, MHSUITHK, MHSUITRY, MHSUIPLN, RSKYFQDGR, SNYATTAK, RSKYFQTES, 
+    BKSEXNR, BKARSON, BKROB, BKSRVIOL, BKSMASLT, AMHTXAND, AMHTXRC3, AMHINP2, 
+    AMHOUTP3, MHRNCOV2, MHRNBRS2, MHRTRAN2, MHRTIME2, AUUNNCOV, MHRWHER2, 
+    MHRNOHP2, AUUNCOST, MHRHAND2, AUUNCMIT, MHRJOBS2, MHRCMIT2, MHRCFID2, MHRFOUT2
+  )
+
+
+# Filter rows with suicidal ideation and violent behaviours
+nsduh_2015_ss <- nsduh_2015_s |> 
+  filter(
+    MHSUITHK == 1 | MHSUITRY == 1 | MHSUIPLN == 1 | 
+    BKSEXNR == 1 | BKARSON == 1 | 
+    BKROB == 1 | BKSRVIOL == 1 | BKSMASLT == 1 | 
+    SNYATTAK %in% c(2, 3, 4, 5)
+  )
+```
+
+Data preparation: The dataset from 2015 to 2021 is combined, then three new datasets are created-Suicidal Ideation and Violent Behaviour (SIVB), Suicidal Ideation only(SI), Violent Behaviour (VB) for the analysis of multivariable logistics regression and prevalence of these three groups of study sample.
+
+```{r}
+
+
+
+# Create the dataset for utilization of mental health services analysis
+combined_nsduh_svhb <- combined_nsduh_ss |>
+  mutate(
+    # SI_VB is 1 if any of the variables is 1, else 0
+    SI_VB = ifelse(
+      IRSUICTHNK == 1 | 
+      IRSUITRYYR == 1 | 
+      IRSUIPLANYR == 1 | 
+      SNYATTAK %in% c(2, 3, 4, 5) | 
+      BKSEXNR == 1 | 
+      BKARSON == 1 | 
+      BKROB == 1 | 
+      BKSRVIOL == 1 | 
+      BKSMASLT == 1,
+      1,
+      0
+    ),
+    
+    # SI is 1 if any of the variables is 1, else 0
+    SI = ifelse(
+      IRSUICTHNK == 1 | 
+      IRSUITRYYR == 1 | 
+      IRSUIPLANYR == 1,
+      1,
+      0
+    ),
+    
+    # VB is 1 if any of the variables is 1, else 0
+    VB = ifelse(
+      SNYATTAK %in% c(2, 3, 4, 5) | 
+      BKSEXNR == 1 | 
+      BKARSON == 1 | 
+      BKROB == 1 | 
+      BKSRVIOL == 1 | 
+      BKSMASLT == 1,
+      1,
+      0
+    ),
+    
+    # HB_DRINKING is 1 if either BNGDRKMON or HVYDRKMON is 1, else 0
+    HB_DRINKING = ifelse(
+      BNGDRKMON == 1 | HVYDRKMON == 1,
+      1,
+      0
+    )
+  )
+```
+
 ## Results {#sec-results}
 
 Describe your results and include relevant tables, plots, and code/comments used to obtain them. You may refer to the @sec-methods as needed. End with a brief conclusion of your findings related to the question you set out to address. You can include references if you'd like, but this is not required.
 
+Table 1: Number of Occurrence of SIVB, SI, VB is shown
+
+```{r}
+
+# Calculate counts for SI and VB
+counts <- combined_nsduh_svhb |>
+  group_by(YEAR) |>
+  summarise(
+    SI_VB = sum(SI_VB == 1, na.rm = TRUE),
+    SI = sum(SI == 1, na.rm = TRUE),
+    VB = sum(VB == 1, na.rm = TRUE)
+  )
+
+# Reshape data to have Variables as rows and Years as columns
+result_table <- counts |>
+  pivot_longer(cols = c(SI_VB, SI, VB), names_to = "Group", values_to = "Count") |>
+  pivot_wider(names_from = YEAR, values_from = Count)
+
+# Display the result table
+print(result_table)
+```
+
+Table 2: Summary of sociodemographics characteristics of study sample
+
+```{r}
+
+
+# Load necessary packages
+library(dplyr)
+library(gtsummary)
+library(gt)
+
+# Assign descriptive labels to each categorical variable
+combined_nsduh_svhbd <- combined_nsduh_svhb |>
+  mutate(
+    CATAG6 = factor(
+      CATAG6,
+      levels = 2:5,
+      labels = c(
+        "18-25 Years Old",
+        "26-34 Years Old",
+        "35-49 Years Old",
+        "50-64 Years Old"
+      )
+    ),
+    IRSEX = factor(IRSEX, levels = 1:2, labels = c("Male", "Female")),
+    NEWRACE2 = factor(
+      NEWRACE2,
+      levels = 1:7,
+      labels = c(
+        "White",
+        "Black/African American",
+        "Native American/Alaskan Native",
+        "Native Hawaiian/Pacific Islander",
+        "Asian",
+        "Mixed",
+        "Hispanic"
+      )
+    ),
+    EDUHIGHCAT = factor(
+      EDUHIGHCAT,
+      levels = 1:4,
+      labels = c(
+        "< High school",
+        "High school",
+        "Associate degree",
+        "College graduate"
+      )
+    ),
+    IRWRKSTAT18 = factor(
+      IRWRKSTAT18,
+      levels = 1:4,
+      labels = c(
+        "Full-time",
+        "Part-time",
+        "Unemployed",
+        "Others"
+      )
+    ),
+    COUTYP4 = factor(
+      COUTYP4,
+      levels = 1:3,
+      labels = c("Large Metro", "Small Metro", "Nonmetro")
+    ),
+    IRINSUR4 = factor(IRINSUR4, levels = 1:2, labels = c("Yes", "No")),
+    IRFAMIN3 = factor(
+      IRFAMIN3,
+      levels = 1:7,
+      labels = c(
+        "< $10,000",
+        "$10,000 - $19,999",
+        "$20,000 - $29,999",
+        "$30,000 - $39,999",
+        "$40,000 - $49,999",
+        "$50,000 - $74,999",
+        "$75,000 or more"
+      )
+    ),
+    IRPINC3 = factor(
+      IRPINC3,
+      levels = 1:7,
+      labels = c(
+        "< $10,000",
+        "$10,000 - $19,999",
+        "$20,000 - $29,999",
+        "$30,000 - $39,999",
+        "$40,000 - $49,999",
+        "$50,000 - $74,999",
+        "> $75,000"
+      )
+    ),
+    IRMARIT = factor(
+      IRMARIT,
+      levels = 1:4,
+      labels = c(
+        "Married",
+        "Widowed",
+        "Divorced/Separated",
+        "Never Been Married"
+      )
+    ),
+    HB_DRINKING = factor(HB_DRINKING, levels = 0:1, labels = c("No", "Yes")),
+    ILLYR = factor(ILLYR, levels = 0:1, labels = c("No", "Yes")),
+    IRPYUD5ALC = factor(IRPYUD5ALC, levels = 0:1, labels = c("No", "Yes")),
+    UD5ILLANY = factor(UD5ILLANY, levels = 0:1, labels = c("No", "Yes")),
+    IRAMDEYR = factor(IRAMDEYR, levels = 0:1, labels = c("No", "Yes")),
+    MICATPY = factor(
+      MICATPY,
+      levels = 0:3,
+      labels = c("No", "Mild", "Moderate", "Serious")
+    )
+  )
+
+# Create Descriptive Summary Table by YEAR
+summary_table <- combined_nsduh_svhbd |>
+  select(
+    YEAR,
+    CATAG6,
+    IRSEX,
+    NEWRACE2,
+    EDUHIGHCAT,
+    IRWRKSTAT18,
+    COUTYP4,
+    IRINSUR4,
+    IRFAMIN3,
+    IRPINC3,
+    IRMARIT,
+    HB_DRINKING,
+    ILLYR,
+    IRPYUD5ALC,
+    UD5ILLANY,
+    IRAMDEYR,
+    MICATPY
+  ) |>
+  tbl_summary(
+    by = YEAR,
+    label = list(
+      CATAG6 ~ "Age",
+      IRSEX ~ "Sex",
+      NEWRACE2 ~ "Race/Hispanicity",
+      EDUHIGHCAT ~ "Educational Attainment",
+      IRWRKSTAT18 ~ "Employment Status",
+      COUTYP4 ~ "Rurality",
+      IRINSUR4 ~ "Health Insurance",
+      IRFAMIN3 ~ "Family Income",
+      IRPINC3 ~ "Personal Income",
+      IRMARIT ~ "Marital Status",
+      HB_DRINKING ~ "Heavy/Binge Drinking Habit",
+      ILLYR ~ "Illicit Drug Use",
+      IRPYUD5ALC ~ "Alcohol Use Disorder",
+      UD5ILLANY ~ "Drug Use Disorder",
+      IRAMDEYR ~ "Major Depressive Episode",
+      MICATPY ~ "Presence/Severity of Mental Illness"
+    ),
+    type = all_categorical() ~ "categorical",
+    statistic = all_categorical() ~ "{n} / {N} ({p}%)",
+    missing = "no"
+  ) |>
+  modify_spanning_header(starts_with("stat_") ~ "**Year**") |>
+  modify_caption("**Table 2: Summary of Descriptive Statistics of Sociodemographics by Year**") |>
+  bold_labels() |>
+  modify_header(
+    label ~ "**Sociodemographics** (N = 21,176)"
+  ) |>
+  modify_footnote(
+    everything() ~ NA_character_
+  )
+
+# Convert to gt table 
+summary_table_gt <- summary_table |>
+  as_gt()
+
+# Adjust column width
+summary_table_gt <- summary_table_gt |>
+  cols_width(
+    label ~ px(250)  
+  )
+
+# Change the font size to small
+summary_table_gt <- summary_table_gt |>
+  tab_options(
+    table.font.size = "small"
+  )
+
+# Display the Final Table
+summary_table_gt
+
+
+```
+
+Graphs of prevalence of SIVB, SI and VB
+
+```{r}
+
+
+library(ggplot2)
+
+prevalence_sivbc <- combined_nsduh_sv |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    sivb_occurrences = sum(SI_VB == 1, na.rm = TRUE),
+    Prevalence_sivbc = (sivb_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, Prevalence_sivbc)
+
+# View the result
+prevalence_sivbc
+
+#--------------------------------------------------------------------------------
+
+prevalence_sic <- combined_nsduh_si |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    si_occurrences = sum(SI == 1, na.rm = TRUE),
+    Prevalence_sic = (si_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, Prevalence_sic)
+
+# View the result
+prevalence_sic
+
+
+#---------------------------------------------------------------------------------
+
+prevalence_vbc <- combined_nsduh_vb |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    vb_occurrences = sum(VB == 1, na.rm = TRUE),
+    Prevalence_vbc = (vb_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, Prevalence_vbc)
+
+# View the result
+prevalence_vbc
+
+#--------------------------------------------------------------------------------
+
+#Plot line graph
+
+# Prepare the prevalence_sivbc dataset
+prevalence_sivbc <- prevalence_sivbc |>
+  rename(Prevalence = Prevalence_sivbc) |>
+  mutate(Group = "SIVB")
+
+# Prepare the prevalence_sic dataset
+prevalence_sic <- prevalence_sic |>
+  rename(Prevalence = Prevalence_sic) |>
+  mutate(Group = "SI")
+
+# Prepare the prevalence_vbc dataset
+prevalence_vbc <- prevalence_vbc |>
+  rename(Prevalence = Prevalence_vbc) |>
+  mutate(Group = "VB")
+
+
+
+# Combine all datasets into one
+prevalence_all <- bind_rows(prevalence_sivbc, prevalence_sic, prevalence_vbc)
+
+# Convert 'Group' to factors 
+prevalence_all$Type <- factor(prevalence_all$Group, levels = c("SIVB", "SI", "VB"))
+
+# Create the line graphs 
+ggplot(prevalence_all, aes(x = Year, y = Prevalence)) +
+  geom_line(aes(color = Type), linewidth = 1) +
+  geom_point(aes(color = Type), size = 2) +
+  facet_wrap(~ Type, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = c("SI" = '#ffdd99', "VB" = '#00ff80', "SIVB" = '#5200cc')) +
+  scale_x_continuous(
+    breaks = 2015:2021,
+  ) +
+  labs(
+    title = "Prevalence by Group between 2015-2022",
+    x = "Year",
+    y = "Prevalence (%)"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    strip.text = element_text(face = "bold", size = 12)
+  )
+
+```
+
+Next, Multivariable Logistics Regression Analysis is performed.
+
+```{r}
+
+
+#SIVB as outcome
+categorical_vars <- c("CATAG6", "IRSEX", "NEWRACE2", "EDUHIGHCAT", "IRWRKSTAT18", 
+                      "COUTYP4", "IRINSUR4", "IRFAMIN3", "IRPINC3", "IRMARIT", 
+                      "HB_DRINKING", "ILLYR", "IRPYUD5ALC", "UD5ILLANY", 
+                      "IRAMDEYR", "MICATPY")
+
+combined_nsduh_sv <- combined_nsduh_sv |>
+  mutate(across(all_of(categorical_vars), as.factor))
+
+sivb_glm <- glm(SI_VB ~ CATAG6 + IRSEX + NEWRACE2 + EDUHIGHCAT + IRWRKSTAT18 + 
+               COUTYP4 + IRINSUR4 + IRFAMIN3 + IRPINC3 + IRMARIT + 
+               HB_DRINKING + ILLYR + IRPYUD5ALC + UD5ILLANY + IRAMDEYR + 
+               MICATPY, 
+             data = combined_nsduh_sv, 
+             family = "binomial")
+
+summary(sivb_glm)
+
+#-------------------------------------------------------------------------------
+
+
+
+# Calculate Odds Ratios (OR) and Confidence Intervals (CI)
+odds_ratios <- exp(cbind(
+  OR = coef(sivb_glm),
+  CI_Lower = confint(sivb_glm)[, 1],
+  CI_Upper = confint(sivb_glm)[, 2]
+))
+
+# Convert to data frame and assign column names
+odds_ratios_df <- odds_ratios |>
+  as.data.frame() |>
+  rename(OR = OR, CI_Lower = CI_Lower, CI_Upper = CI_Upper)
+
+# Round all numerical columns to 4 decimal places
+odds_ratios_df <- round(odds_ratios_df, 4)
+
+# View all the odds ratios
+print(odds_ratios_df)
+
+
+# Results: 
+
+#--------------------------------------------------------------------------------
+
+#SI as outcome
+categorical_vars <- c("CATAG6", "IRSEX", "NEWRACE2", "EDUHIGHCAT", "IRWRKSTAT18", 
+                      "COUTYP4", "IRINSUR4", "IRFAMIN3", "IRPINC3", "IRMARIT", 
+                      "HB_DRINKING", "ILLYR", "IRPYUD5ALC", "UD5ILLANY", 
+                      "IRAMDEYR", "MICATPY")
+
+combined_nsduh_si <- combined_nsduh_si |>
+  mutate(across(all_of(categorical_vars), as.factor))
+
+si_glm <- glm(SI ~ CATAG6 + IRSEX + NEWRACE2 + EDUHIGHCAT + IRWRKSTAT18 + 
+               COUTYP4 + IRINSUR4 + IRFAMIN3 + IRPINC3 + IRMARIT + 
+               HB_DRINKING + ILLYR + IRPYUD5ALC + UD5ILLANY + IRAMDEYR + 
+               MICATPY, 
+             data = combined_nsduh_si, 
+             family = "binomial")
+
+summary(si_glm)
+
+
+#-------------------------------------------------------------------------------
+# Calculate Odds Ratios (OR) and Confidence Intervals (CI)
+odds_ratios <- exp(cbind(
+  OR = coef(si_glm),
+  CI_Lower = confint(si_glm)[, 1],
+  CI_Upper = confint(si_glm)[, 2]
+))
+
+# Convert to data frame and assign column names
+odds_ratios_df <- odds_ratios |>
+  as.data.frame() |>
+  rename(OR = OR, CI_Lower = CI_Lower, CI_Upper = CI_Upper)
+
+# Round all numerical columns to 4 decimal places
+odds_ratios_df <- round(odds_ratios_df, 4)
+
+# View all the odds ratios
+print(odds_ratios_df)
+
+#--------------------------------------------------------------------------------
+
+
+#VB as outcome
+categorical_vars <- c("CATAG6", "IRSEX", "NEWRACE2", "EDUHIGHCAT", "IRWRKSTAT18", 
+                      "COUTYP4", "IRINSUR4", "IRFAMIN3", "IRPINC3", "IRMARIT", 
+                      "HB_DRINKING", "ILLYR", "IRPYUD5ALC", "UD5ILLANY", 
+                      "IRAMDEYR", "MICATPY")
+
+combined_nsduh_vb <- combined_nsduh_vb |>
+  mutate(across(all_of(categorical_vars), as.factor))
+
+vb_glm <- glm(VB ~ CATAG6 + IRSEX + NEWRACE2 + EDUHIGHCAT + IRWRKSTAT18 + 
+               COUTYP4 + IRINSUR4 + IRFAMIN3 + IRPINC3 + IRMARIT + 
+               HB_DRINKING + ILLYR + IRPYUD5ALC + UD5ILLANY + IRAMDEYR + 
+               MICATPY, 
+             data = combined_nsduh_vb, 
+             family = "binomial")
+
+summary(vb_glm)
+
+
+#-------------------------------------------------------------------------------
+
+# Calculate Odds Ratios (OR) and Confidence Intervals (CI)
+odds_ratios <- exp(cbind(
+  OR = coef(vb_glm),
+  CI_Lower = confint(vb_glm)[, 1],
+  CI_Upper = confint(vb_glm)[, 2]
+))
+
+# Convert to data frame and assign column names
+odds_ratios_df <- odds_ratios |>
+  as.data.frame() |>
+  rename(OR = OR, CI_Lower = CI_Lower, CI_Upper = CI_Upper)
+
+# Round all numerical columns to 4 decimal places
+odds_ratios_df <- round(odds_ratios_df, 4)
+
+# View all the odds ratios
+print(odds_ratios_df)
+
+```
+
+Post-hoc analysis: examination of multicollinearity between predictors is performed.
+
+```{r}
+
+
+# Load car package
+library(car)
+
+# Calculate VIF values
+vif_values <- vif(sivb_glm)
+
+# Print VIF values
+print(vif_values)
+
+# Create a data frame to store GVIFs and adjusted GVIFs
+gvif_df <- data.frame(
+  Variable = rownames(vif_values),
+  GVIF = vif_values[, "GVIF"],
+  Df = vif_values[, "Df"]
+)
+
+# Calculate adjusted GVIFs
+gvif_df$Adjusted_GVIF <- gvif_df$GVIF^(1 / (2 * gvif_df$Df))
+
+# View the adjusted GVIFs
+print(gvif_df)
+
+
+
+```
+
+Then, calculation of utilization of Mental Health Services (MHS) including outpatient and inpatient services are conducted and corresponding graphs are plotted.
+
+```{r}
+
+
+
+# Calculate the prevalence of "AMHTXYR4"-Having any type of Mental Health Service  for "SIVB"
+
+prevalence_MHS_sivb <- combined_nsduh_svhb |>
+  filter(SI_VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXYR4_occurrences = sum(AMHTXYR4 == 1, na.rm = TRUE),
+    prevalence_MHS_sivb = (AMHTXYR4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_sivb)
+
+# View the result
+prevalence_MHS_sivb
+
+
+# Calculate the prevalence of "AMHINP2"-Inpatient Mental Health Service for 'SIVB' 
+
+prevalence_MHS_sivbi <- combined_nsduh_svhb |>
+  filter(SI_VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHINP2_occurrences = sum(AMHINP2 == 1, na.rm = TRUE),
+    prevalence_MHS_sivbi = (AMHINP2_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_sivbi)
+
+# View the result
+prevalence_MHS_sivbi
+
+
+# Calculate the prevalence of "AMHOUTP4"-Outpatient Mental Health Services for 'SIVB' 
+
+prevalence_MHS_sivbo <- combined_nsduh_svhb |>
+  filter(SI_VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHOUTP4_occurrences = sum(AMHOUTP4 == 1, na.rm = TRUE),
+    prevalence_MHS_sivbo = (AMHOUTP4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_sivbo)
+
+# View the result
+prevalence_MHS_sivbo
+
+#----------------------------------------------------------------------------
+
+
+# Calculate the prevalence of "AMHTXYR4"-Having any type of Mental Health Service for 'SI' 
+
+prevalence_MHS_si <- combined_nsduh_svhb |>
+  filter(SI == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXYR4_occurrences = sum(AMHTXYR4 == 1, na.rm = TRUE),
+    prevalence_MHS_si = (AMHTXYR4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_si)
+
+# View the result
+prevalence_MHS_si
+
+# Calculate the prevalence of "AMHINP2"-Inpatient Mental Health Service for 'SI' 
+
+prevalence_MHS_sii <- combined_nsduh_svhb |>
+  filter(SI == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHINP2_occurrences = sum(AMHINP2 == 1, na.rm = TRUE),
+    prevalence_MHS_sii = (AMHINP2_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_sii)
+
+# View the result
+prevalence_MHS_sii
+
+
+# Calculate the prevalence of "AMHOUTP4"-Outpatient Mental Health Services for 'SI' 
+
+prevalence_MHS_sio <- combined_nsduh_svhb |>
+  filter(SI == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHOUTP4_occurrences = sum(AMHOUTP4 == 1, na.rm = TRUE),
+    prevalence_MHS_sio = (AMHOUTP4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_sio)
+
+# View the result
+prevalence_MHS_sio
+
+
+#-------------------------------------------------------------------------------
+# Calculate the prevalence of "AMHTXYR4"-Having any type of Mental Health Service for 'VB' 
+
+prevalence_MHS_vb <- combined_nsduh_svhb |>
+  filter(VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXYR4_occurrences = sum(AMHTXYR4 == 1, na.rm = TRUE),
+    prevalence_MHS_vb = (AMHTXYR4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_vb)
+
+# View the result
+prevalence_MHS_vb
+
+
+# Calculate the prevalence of "AMHINP2"-Inpatient Mental Health Services for 'VB' 
+
+prevalence_MHS_vbi <- combined_nsduh_svhb |>
+  filter(VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHINP2_occurrences = sum(AMHINP2 == 1, na.rm = TRUE),
+    prevalence_MHS_vbi = (AMHINP2_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_vbi)
+
+# View the result
+prevalence_MHS_vbi
+
+
+# Calculate the prevalence of "AMHOUTP4"-Outpatient Mental Health Services for 'VB' 
+
+prevalence_MHS_vbo <- combined_nsduh_svhb |>
+  filter(VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHOUTP4_occurrences = sum(AMHOUTP4 == 1, na.rm = TRUE),
+    prevalence_MHS_vbo = (AMHOUTP4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_MHS_vbo)
+
+# View the result
+prevalence_MHS_vbo
+
+
+#--------------------------------------------------------------------------------
+
+# Plot the line graphs 
+
+# Prepare each dataset 
+prevalence_MHS_sivb <- prevalence_MHS_sivb |>
+  rename(Prevalence = prevalence_MHS_sivb) |>
+  mutate(Group = 'SIVB', Service = 'AMHTXYR4')
+
+prevalence_MHS_sivbi <- prevalence_MHS_sivbi |>
+  rename(Prevalence = prevalence_MHS_sivbi) |>
+  mutate(Group = 'SIVB', Service = 'AMHINP2')
+
+prevalence_MHS_sivbo <- prevalence_MHS_sivbo |>
+  rename(Prevalence = prevalence_MHS_sivbo) |>
+  mutate(Group = 'SIVB', Service = 'AMHOUTP4')
+
+prevalence_MHS_si <- prevalence_MHS_si |>
+  rename(Prevalence = prevalence_MHS_si) |>
+  mutate(Group = 'SI', Service = 'AMHTXYR4')
+
+prevalence_MHS_sii <- prevalence_MHS_sii |>
+  rename(Prevalence = prevalence_MHS_sii) |>
+  mutate(Group = 'SI', Service = 'AMHINP2')
+
+prevalence_MHS_sio <- prevalence_MHS_sio |>
+  rename(Prevalence = prevalence_MHS_sio) |>
+  mutate(Group = 'SI', Service = 'AMHOUTP4')
+
+prevalence_MHS_vb <- prevalence_MHS_vb |>
+  rename(Prevalence = prevalence_MHS_vb) |>
+  mutate(Group = 'VB', Service = 'AMHTXYR4')
+
+prevalence_MHS_vbi <- prevalence_MHS_vbi |>
+  rename(Prevalence = prevalence_MHS_vbi) |>
+  mutate(Group = 'VB', Service = 'AMHINP2')
+
+prevalence_MHS_vbo <- prevalence_MHS_vbo |>
+  rename(Prevalence = prevalence_MHS_vbo) |>
+  mutate(Group = 'VB', Service = 'AMHOUTP4')
+
+# Combine all datasets into one dataframe
+prevalence_all <- bind_rows(
+  prevalence_MHS_sivb,
+  prevalence_MHS_sivbi,
+  prevalence_MHS_sivbo,
+  prevalence_MHS_si,
+  prevalence_MHS_sii,
+  prevalence_MHS_sio,
+  prevalence_MHS_vb,
+  prevalence_MHS_vbi,
+  prevalence_MHS_vbo
+)
+
+# Convert 'Group' to a factor with the desired order
+prevalence_all$Group <- factor(prevalence_all$Group, levels = c('SIVB', 'SI', 'VB'))
+
+# Label 'Service' factor levels
+prevalence_all$Service <- factor(prevalence_all$Service,
+  levels = c('AMHTXYR4', 'AMHINP2', 'AMHOUTP4'),
+  labels = c('Getting MH treatment', 'Inpatient', 'Outpatient')
+)
+
+# Create the multipanel line graphs
+ggplot(prevalence_all, aes(x = Year, y = Prevalence)) +
+  geom_line(aes(color = Group), linewidth = 1) +
+  geom_point(aes(color = Group), size = 2) +
+  facet_wrap(~ Service, ncol = 1, scales = 'free_y') +
+  scale_color_manual(
+    values = c(
+      'SIVB' = '#5200cc',
+      'SI' = '#ffdd99',
+      'VB' = '#00ff80'
+    )
+  ) +
+  scale_x_continuous(breaks = 2015:2021) +  
+  labs(
+    title = 'Prevalence Over Years by Service',
+    x = 'Year',
+    y = 'Prevalence (%)',
+    color = 'Group'  
+  ) +
+  theme_bw() +
+  theme(
+    strip.text = element_text(face = 'bold', size = 12)  # Bold and enlarge strip labels
+  )
+
+```
+
+Subsequently, prevalence of Unmet Need for Mental Health Services (MHS) for SIVB, SI,VB are conducted and corresponding graphs are plotted.
+
+```{r}
+
+
+# Calculate the prevalence of "AMHTXAND4" for SIVB  
+
+prevalence_UMN_sivb <- combined_nsduh_svhb |>
+  filter(SI_VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXAND4_occurrences = sum(AMHTXAND4 == 1, na.rm = TRUE),
+    prevalence_UMN_sivb = (AMHTXAND4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_UMN_sivb)
+
+# View the result
+prevalence_UMN_sivb
+
+
+# Calculate the prevalence of "AMHTXAND4" for SI 
+
+prevalence_UMN_si <- combined_nsduh_svhb |>
+  filter(SI == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXAND4_occurrences = sum(AMHTXAND4 == 1, na.rm = TRUE),
+    prevalence_UMN_si = (AMHTXAND4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_UMN_si)
+
+# View the result
+prevalence_UMN_si
+
+
+# Calculate the prevalence of "AMHTXAND4" for SIVB 
+
+prevalence_UMN_vb <- combined_nsduh_vb |>
+  filter(VB == 1) |>
+  group_by(YEAR) |>
+  summarize(
+    total_number = n(),
+    AMHTXAND4_occurrences = sum(AMHTXAND4 == 1, na.rm = TRUE),
+    prevalence_UMN_vb = (AMHTXAND4_occurrences / total_number) * 100
+  ) |>
+  select(Year = YEAR, prevalence_UMN_vb)
+
+# View the result
+prevalence_UMN_vb
+
+
+
+#----------------------------------------------------------------------------
+
+
+# Prepare the prevalence_UMN_sivb dataset
+prevalence_UMN_sivb <- prevalence_UMN_sivb |>
+  rename(Prevalence = prevalence_UMN_sivb) |>
+  mutate(Group = "SIVB")
+
+# Prepare the prevalence_UMN_si dataset
+prevalence_UMN_si <- prevalence_UMN_si |>
+  rename(Prevalence = prevalence_UMN_si) |>
+  mutate(Group = "SI")
+
+# Prepare the prevalence_UMN_vb dataset
+prevalence_UMN_vb <- prevalence_UMN_vb |>
+  rename(Prevalence = prevalence_UMN_vb) |>
+  mutate(Group = "VB")
+
+# Combine all datasets into one
+prevalence_all <- bind_rows(prevalence_UMN_sivb, prevalence_UMN_si, prevalence_UMN_vb)
+
+# Convert 'Group' to factors
+prevalence_all$Type <- factor(prevalence_all$Group, levels = c("SIVB", "SI", "VB"))
+
+# Create the line graphs 
+ggplot(prevalence_all, aes(x = Year, y = Prevalence)) +
+  geom_line(aes(color = Type), linewidth = 1) +
+  geom_point(aes(color = Type), size = 2) +
+  facet_wrap(~ Type, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = c("SI" = '#ffdd99', "VB" = '#00ff80', "SIVB" = '#5200cc')) +
+  scale_x_continuous(
+    breaks = 2015:2021
+  ) +
+  labs(
+    title = "Prevalence of Unmet Need for Mental Health Services by Group ",
+    x = "Year",
+    y = "Prevalence (%)"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    strip.text = element_text(face = "bold", size = 12)
+  )
+
+```
+
+Then, the reasons of not having treatment for SIVB, SI and VB are plotted.
+
+```{r}
+
+# Load required libraries
+
+library(scales)
+
+# List of variables to test
+variables_of_interest <- c(
+  "MHRNCOV2", "MHRNBRS2", "MHRTRAN2", "MHRTIME2", "AUUNNCOV",
+  "MHRWHER2", "MHRNOHP2", "AUUNCOST", "MHRHAND2", "AUUNCMIT", 
+  "MHRJOBS2", "MHRCMIT2", "MHRCFID2", "MHRFOUT2"
+)
+
+# Map of variable codes to descriptive labels
+variable_labels <- c(
+  MHRNCOV2 = "Insurance not covered enough",
+  MHRNBRS2 = "Fear of social stigma",
+  MHRTRAN2 = "Transportation issues",
+  MHRTIME2 = "Time issues",
+  AUUNNCOV = "Insurance not covered",
+  MHRWHER2 = "Do not know where to get mental health treatment",
+  MHRNOHP2 = "Do not think treatment would help",
+  AUUNCOST = "Cost barrier",
+  MHRHAND2 = "Thought able to handle the issue themselves",
+  AUUNCMIT = "Fear of being committed to medication",
+  MHRJOBS2 = "Fear of losing job",
+  MHRCMIT2 = "Fear of commitment",
+  MHRCFID2 = "Fear of confidentiality issue",
+  MHRFOUT2 = "Fear of being found out"
+)
+
+# Filter dataset to include only the variables of interest and the YEAR column
+data_filtered <- combined_nsduh_svhb |>
+  filter(SI_VB == 1) |>
+  select(YEAR, all_of(variables_of_interest))
+
+# Convert the data to long format 
+data_long <- data_filtered |>
+  pivot_longer(
+    cols = -YEAR, # All columns except YEAR
+    names_to = "Variable", 
+    values_to = "Count"
+  )
+
+# Count the occurrences 
+summary_counts <- data_long |>
+  filter(Count == 1) |>
+  group_by(YEAR, Variable) |>
+  summarise(Count = n(), .groups = "drop")
+
+# Reverse the order of the years within each bar 
+summary_counts$YEAR <- factor(summary_counts$YEAR, levels = sort(unique(summary_counts$YEAR), decreasing = TRUE))
+
+
+# Create the stacked horizontal bar chart
+ggplot(summary_counts, aes(x = Variable, y = Count, fill = YEAR)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Reasons for not having treatment",
+    x = "Reasons",
+    y = "Number of Cases",
+    fill = "Year"
+  ) +
+  scale_fill_brewer(palette = "Set1") + # Use ColorBrewer palette
+  scale_y_continuous(
+    breaks = seq(0, 6000, by = 500),  # Set breaks to appear every 500 up to 6000
+    labels = seq(0, 6000, by = 500)  # Ensure labels match the breaks
+  ) +
+  scale_x_discrete(labels = variable_labels) + # Use descriptive labels for variables
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+
+
+
+
+#-------------------------------------------------------------------------------
+
+# List of variables to test
+variables_of_interest <- c(
+  "MHRNCOV2", "MHRNBRS2", "MHRTRAN2", "MHRTIME2", "AUUNNCOV",
+  "MHRWHER2", "MHRNOHP2", "AUUNCOST", "MHRHAND2", "AUUNCMIT", 
+  "MHRJOBS2", "MHRCMIT2", "MHRCFID2", "MHRFOUT2"
+)
+
+# Map of variable codes to descriptive labels
+variable_labels <- c(
+  MHRNCOV2 = "Insurance not covered enough",
+  MHRNBRS2 = "Fear of social stigma",
+  MHRTRAN2 = "Transportation issues",
+  MHRTIME2 = "Time issues",
+  AUUNNCOV = "Insurance not covered",
+  MHRWHER2 = "Do not know where to get mental health treatment",
+  MHRNOHP2 = "Do not think treatment would help",
+  AUUNCOST = "Cost barrier",
+  MHRHAND2 = "Thought able to handle the issue themselves",
+  AUUNCMIT = "Fear of being committed to medication",
+  MHRJOBS2 = "Fear of losing job",
+  MHRCMIT2 = "Fear of commitment",
+  MHRCFID2 = "Fear of confidentiality issue",
+  MHRFOUT2 = "Fear of being found out"
+)
+
+# Filter dataset to include only the variables of interest and the YEAR column
+data_filtered <- combined_nsduh_svhb |>
+  filter(SI == 1) |>
+  select(YEAR, all_of(variables_of_interest))
+
+# Convert the data to long format 
+data_long <- data_filtered |>
+  pivot_longer(
+    cols = -YEAR, # All columns except YEAR
+    names_to = "Variable", 
+    values_to = "Count"
+  )
+
+# Count the occurrences 
+summary_counts <- data_long |>
+  filter(Count == 1) |>
+  group_by(YEAR, Variable) |>
+  summarise(Count = n(), .groups = "drop")
+
+# Reverse the order of the years within each bar 
+summary_counts$YEAR <- factor(summary_counts$YEAR, levels = sort(unique(summary_counts$YEAR), decreasing = TRUE))
+
+
+# Create the stacked horizontal bar chart
+ggplot(summary_counts, aes(x = Variable, y = Count, fill = YEAR)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Reasons for not having treatment",
+    x = "Reasons",
+    y = "Number of Cases",
+    fill = "Year"
+  ) +
+  scale_fill_brewer(palette = "Set1") + # Use ColorBrewer palette
+  scale_y_continuous(
+    breaks = seq(0, 6000, by = 500),  # Set breaks to appear every 500 up to 6000
+    labels = seq(0, 6000, by = 500)  # Ensure labels match the breaks
+  ) +
+  scale_x_discrete(labels = variable_labels) + # Use descriptive labels for variables
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+#--------------------------------------------------------------------------------
+
+
+# List of variables to test
+variables_of_interest <- c(
+  "MHRNCOV2", "MHRNBRS2", "MHRTRAN2", "MHRTIME2", "AUUNNCOV",
+  "MHRWHER2", "MHRNOHP2", "AUUNCOST", "MHRHAND2", "AUUNCMIT", 
+  "MHRJOBS2", "MHRCMIT2", "MHRCFID2", "MHRFOUT2"
+)
+
+# Map of variable codes to descriptive labels
+variable_labels <- c(
+  MHRNCOV2 = "Insurance not covered enough",
+  MHRNBRS2 = "Fear of social stigma",
+  MHRTRAN2 = "Transportation issues",
+  MHRTIME2 = "Time issues",
+  AUUNNCOV = "Insurance not covered",
+  MHRWHER2 = "Do not know where to get mental health treatment",
+  MHRNOHP2 = "Do not think treatment would help",
+  AUUNCOST = "Cost barrier",
+  MHRHAND2 = "Thought able to handle the issue themselves",
+  AUUNCMIT = "Fear of being committed to medication",
+  MHRJOBS2 = "Fear of losing job",
+  MHRCMIT2 = "Fear of commitment",
+  MHRCFID2 = "Fear of confidentiality issue",
+  MHRFOUT2 = "Fear of being found out"
+)
+
+# Filter dataset to include only the variables of interest and the YEAR column
+data_filtered <- combined_nsduh_svhb |>
+  filter(VB == 1) |>
+  select(YEAR, all_of(variables_of_interest))
+
+# Convert the data to long format 
+data_long <- data_filtered |>
+  pivot_longer(
+    cols = -YEAR, # All columns except YEAR
+    names_to = "Variable", 
+    values_to = "Count"
+  )
+
+# Count the occurrences 
+summary_counts <- data_long |>
+  filter(Count == 1) |>
+  group_by(YEAR, Variable) |>
+  summarise(Count = n(), .groups = "drop")
+
+# Reverse the order of the years within each bar 
+summary_counts$YEAR <- factor(summary_counts$YEAR, levels = sort(unique(summary_counts$YEAR), decreasing = TRUE))
+
+
+# Create the stacked horizontal bar chart
+ggplot(summary_counts, aes(x = Variable, y = Count, fill = YEAR)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Reasons for not having treatment",
+    x = "Reasons",
+    y = "Number of Cases",
+    fill = "Year"
+  ) +
+  scale_fill_brewer(palette = "Set1") + # Use ColorBrewer palette
+  scale_y_continuous(
+    breaks = seq(0, 6000, by = 500),  # Set breaks to appear every 500 up to 6000
+    labels = seq(0, 6000, by = 500)  # Ensure labels match the breaks
+  ) +
+  scale_x_discrete(labels = variable_labels) + # Use descriptive labels for variables
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+
+
+
+
+```
+
+Interpretations
+
+The prevalence of SIVB, SI, and VB had been increasing from 2015 to 2022. 
+
+In terms of demographic factors, older adults had had significantly lower odds of suicidal ideation or violent behaviors (OR between 0.3152 and 0.3894). Females had had lower odds compared to males (OR = 0.5861). Compared to White individuals, all other ethnic minorities had had higher odds, with Native American/Alaskan Native individuals having had the highest odds (OR = 1.9136). Regarding socioeconomic factors, higher education levels had been associated with lower odds of the outcome, whereas unemployment had increased the odds (OR = 1.3953). The associations of personal income (ORs ranged from 0.7836 to 0.9182), rurality, marital status, and health insurance coverage (OR = 1.1258) had been weak. Substance abuse and substance use disorders had been associated with increased odds of suicidal ideation or violent behaviors (SI/VB). The odds of SI/VB had increased dramatically with the severity of mental illness (Mild OR: 12.76; Moderate OR: 48.42; Serious OR: 747.69). Subgroup analysis of SI and VB had revealed similar associations for all the factors. 
+
+There is acceptable multicollinearity between the predictors. 
+
+The prevalence of utilization of mental health services for SIVB, SI, and VB had steadily increased from 2015 to 2021. However, there had been a more drastic increase in the unmet need for mental health services for these three groups during the study period. 
+
+The most common reason for not having treatment is “cost barrier,” followed by “do not know where to get treatment,” “thought they could handle it on their own,” “worry about being committed to taking medication,” and “fear of commitment.” 
+
+Limitations 
+
+This study has some limitations. First, as the data come from a self-report survey, this inevitably introduces social desirability bias or recall bias, which impacts the validity of the results. Second, due to the COVID-19 pandemic, the survey was conducted virtually in 2020 and 2021 rather than in person in previous years, which could cause mode effect bias. Third, suicidal ideation (SI) and violent behaviors (VB) were assessed based on a single question rather than using a specific psychometric instrument. Finally, some confounding factors, such as medical comorbidities or disabilities, were not controlled for in the study.
+
 ## Conclusion
+
+In conclusion, the prevalence of past-year suicidal ideation (suicidal thoughts, suicide plans, and suicide attempts) had been increasing. The rise in the prevalence of unmet need for mental health services was more drastic compared to the utilization of mental health services. The most common reason for the unmet need for mental health services had been the cost barrier. 
 
 This the conclusion. The @sec-results can be invoked here.
